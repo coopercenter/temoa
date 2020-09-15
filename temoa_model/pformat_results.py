@@ -126,7 +126,15 @@ def pformat_results ( pyomo_instance, pyomo_result, options ):
 	MPL = m.ModelProcessLife
 	LLN = m.LifetimeLoanProcess
 	x   = 1 + GDR    # convenience variable, nothing more
-
+	if 'temoa_model/config_sample_myopic' in options.file_location:
+		original_dbpath = options.output
+		con = sqlite3.connect(original_dbpath)
+		cur = con.cursor()
+		time_periods = cur.execute("SELECT t_periods FROM time_periods WHERE flag='f'").fetchall()
+		P_0 = time_periods[0][0]
+		P_e = time_periods[-1][0]
+		con.commit()
+		con.close()
 	# Extract optimal decision variable values related to commodity flow:
 	for r, p, s, d, t, v in m.V_StorageLevel:
 		val = value( m.V_StorageLevel[r, p, s, d, t, v] )
